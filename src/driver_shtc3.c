@@ -70,6 +70,15 @@
 #define SHTC3_COMMAND_LP_MEAS_RH_CLOCKSTR        0x44DEU        /**< read rh first, clock stretching enabled command */
 
 /**
+ * @brief helper macros
+ */
+#ifdef DRIVER_SHTC3_WITH_DEBUG_PRINT
+#define DRIVER_SHTC3_DEBUG_PRINT(FMT, ...)  handle->debug_print(FMT, ##__VA_ARGS__)
+#else
+#define DRIVER_SHTC3_DEBUG_PRINT(FMT, ...)  do {} while(0)
+#endif
+
+/**
  * @brief     write the command
  * @param[in] *handle pointer to a shtc3 handle structure
  * @param[in] cmd written command
@@ -156,44 +165,46 @@ uint8_t shtc3_init(shtc3_handle_t *handle)
     {
         return 2;                                                            /* return error */
     }
+#ifdef DRIVER_SHTC3_WITH_DEBUG_PRINT
     if (handle->debug_print == NULL)                                         /* check debug_print */
     {
         return 3;                                                            /* return error */
     }
+#endif
     if (handle->iic_init == NULL)                                            /* check iic_init */
     {
-        handle->debug_print("shtc3: iic_init is null.\n");                   /* iic_init is null */
+        DRIVER_SHTC3_DEBUG_PRINT("shtc3: iic_init is null.\n");              /* iic_init is null */
        
         return 3;                                                            /* return error */
     }
     if (handle->iic_deinit == NULL)                                          /* check iic_deinit */
     {
-        handle->debug_print("shtc3: iic_deinit is null.\n");                 /* iic_deinit is null */
+        DRIVER_SHTC3_DEBUG_PRINT("shtc3: iic_deinit is null.\n");            /* iic_deinit is null */
        
         return 3;                                                            /* return error */
     }
     if (handle->iic_read_address16 == NULL)                                  /* check iic_read_address16 */
     {
-        handle->debug_print("shtc3: iic_read_address16 is null.\n");         /* iic_read_address16 is null */
+        DRIVER_SHTC3_DEBUG_PRINT("shtc3: iic_read_address16 is null.\n");    /* iic_read_address16 is null */
        
         return 3;                                                            /* return error */
     }
     if (handle->iic_write_address16 == NULL)                                 /* check iic_write_address16 */
     {
-        handle->debug_print("shtc3: iic_write_address16 is null.\n");        /* iic_write_address16 is null */
+        DRIVER_SHTC3_DEBUG_PRINT("shtc3: iic_write_address16 is null.\n");   /* iic_write_address16 is null */
        
         return 3;                                                            /* return error */
     }
     if (handle->delay_ms == NULL)                                            /* check delay_ms */
     {
-        handle->debug_print("shtc3: delay_ms is null.\n");                   /* delay_ms is null */
+        DRIVER_SHTC3_DEBUG_PRINT("shtc3: delay_ms is null.\n");              /* delay_ms is null */
        
         return 3;                                                            /* return error */
     }
     
     if (handle->iic_init() != 0)                                             /* iic init */
     {
-        handle->debug_print("shtc3: iic init failed.\n");                    /* iic init failed */
+        DRIVER_SHTC3_DEBUG_PRINT("shtc3: iic init failed.\n");               /* iic init failed */
        
         return 1;                                                            /* return error */
     }
@@ -202,7 +213,7 @@ uint8_t shtc3_init(shtc3_handle_t *handle)
     res = a_shtc3_write(handle, command);                                    /* write command */
     if (res != 0)                                                            /* check result */
     {
-        handle->debug_print("shtc3: write command failed.\n");               /* write command failed */
+        DRIVER_SHTC3_DEBUG_PRINT("shtc3: write command failed.\n");          /* write command failed */
         (void)handle->iic_deinit();                                          /* iic deinit */
         
         return 1;                                                            /* return error */
@@ -213,21 +224,21 @@ uint8_t shtc3_init(shtc3_handle_t *handle)
     res = a_shtc3_read(handle, command, (uint8_t *)data, 3);                 /* read data */
     if (res != 0)                                                            /* check result */
     {
-        handle->debug_print("shtc3: read data failed.\n");                   /* read data failed */
+        DRIVER_SHTC3_DEBUG_PRINT("shtc3: read data failed.\n");              /* read data failed */
         (void)handle->iic_deinit();                                          /* iic deinit */
         
         return 4;                                                            /* return error */
     }
     if (a_shtc3_crc((uint8_t *)data, 2) != data[2])                          /* check crc */
     {
-        handle->debug_print("shtc3: crc check failed.\n");                   /* crc check failed */
+        DRIVER_SHTC3_DEBUG_PRINT("shtc3: crc check failed.\n");              /* crc check failed */
         (void)handle->iic_deinit();                                          /* iic deinit */
         
         return 4;                                                            /* return error */
     }
     if (((data[0] & 0x08) != 0x08) || ((data[1] & 0x3F) != 0x7))             /* check id */
     {
-        handle->debug_print("shtc3: id is invalid.\n");                      /* id is invalid */
+        DRIVER_SHTC3_DEBUG_PRINT("shtc3: id is invalid.\n");                 /* id is invalid */
         (void)handle->iic_deinit();                                          /* iic deinit */
         
         return 5;                                                            /* return error */
@@ -266,7 +277,7 @@ uint8_t shtc3_deinit(shtc3_handle_t *handle)
     res = a_shtc3_write(handle, command);                             /* write command */
     if (res != 0)                                                     /* check result */
     {
-        handle->debug_print("shtc3: write command failed.\n");        /* write command failed */
+        DRIVER_SHTC3_DEBUG_PRINT("shtc3: write command failed.\n");   /* write command failed */
         
         return 4;                                                     /* return error */
     }
@@ -274,7 +285,7 @@ uint8_t shtc3_deinit(shtc3_handle_t *handle)
     
     if (handle->iic_deinit() != 0)                                    /* iic deinit */
     {
-        handle->debug_print("shtc3: iic deinit failed.\n");           /* iic deinit failed */
+        DRIVER_SHTC3_DEBUG_PRINT("shtc3: iic deinit failed.\n");      /* iic deinit failed */
         
         return 1;                                                     /* return error */
     }
@@ -326,13 +337,13 @@ uint8_t shtc3_read(shtc3_handle_t *handle, shtc3_bool_t clock_stretching_enable,
     res = a_shtc3_read(handle, command, (uint8_t *)data, 3);                       /* read data */
     if (res != 0)                                                                  /* check result */
     {
-        handle->debug_print("shtc3: read data failed.\n");                         /* read data failed */
+        DRIVER_SHTC3_DEBUG_PRINT("shtc3: read data failed.\n");                    /* read data failed */
        
         return 1;                                                                  /* return error */
     }
     if (a_shtc3_crc((uint8_t *)data, 2) != data[2])                                /* check crc */
     {
-        handle->debug_print("shtc3: crc check failed.\n");                         /* crc check failed */
+        DRIVER_SHTC3_DEBUG_PRINT("shtc3: crc check failed.\n");                    /* crc check failed */
        
         return 1;                                                                  /* return error */
     }
@@ -350,13 +361,13 @@ uint8_t shtc3_read(shtc3_handle_t *handle, shtc3_bool_t clock_stretching_enable,
     res = a_shtc3_read(handle, command, (uint8_t *)data, 3);                       /* read data */
     if (res != 0)                                                                  /* check result */
     {
-        handle->debug_print("shtc3: read data failed.\n");                         /* read data failed */
+        DRIVER_SHTC3_DEBUG_PRINT("shtc3: read data failed.\n");                    /* read data failed */
        
         return 1;                                                                  /* return error */
     }
     if (a_shtc3_crc((uint8_t *)data, 2) != data[2])                                /* check crc */
     {
-        handle->debug_print("shtc3: crc check failed.\n");                         /* crc check failed */
+        DRIVER_SHTC3_DEBUG_PRINT("shtc3: crc check failed.\n");                    /* crc check failed */
        
         return 1;                                                                  /* return error */
     }
@@ -409,13 +420,13 @@ uint8_t shtc3_read_low_power(shtc3_handle_t *handle, shtc3_bool_t clock_stretchi
     res = a_shtc3_read(handle, command, (uint8_t *)data, 3);                       /* read data */
     if (res != 0)                                                                  /* check result */
     {
-        handle->debug_print("shtc3: read data failed.\n");                         /* read data failed */
+        DRIVER_SHTC3_DEBUG_PRINT("shtc3: read data failed.\n");                    /* read data failed */
        
         return 1;                                                                  /* return error */
     }
     if (a_shtc3_crc((uint8_t *)data, 2) != data[2])                                /* check crc */
     {
-        handle->debug_print("shtc3: crc check failed.\n");                         /* crc check failed */
+        DRIVER_SHTC3_DEBUG_PRINT("shtc3: crc check failed.\n");                    /* crc check failed */
        
         return 1;                                                                  /* return error */
     }
@@ -433,13 +444,13 @@ uint8_t shtc3_read_low_power(shtc3_handle_t *handle, shtc3_bool_t clock_stretchi
     res = a_shtc3_read(handle, command, (uint8_t *)data, 3);                       /* read data */
     if (res != 0)                                                                  /* check result */
     {
-        handle->debug_print("shtc3: read data failed.\n");                         /* read data failed */
+        DRIVER_SHTC3_DEBUG_PRINT("shtc3: read data failed.\n");                    /* read data failed */
        
         return 1;                                                                  /* return error */
     }
     if (a_shtc3_crc((uint8_t *)data, 2) != data[2])                                /* check crc */
     {
-        handle->debug_print("shtc3: crc check failed.\n");                         /* crc check failed */
+        DRIVER_SHTC3_DEBUG_PRINT("shtc3: crc check failed.\n");                    /* crc check failed */
        
         return 1;                                                                  /* return error */
     }
@@ -477,7 +488,7 @@ uint8_t shtc3_soft_reset(shtc3_handle_t *handle)
     res = a_shtc3_write(handle, command);                             /* write command */
     if (res != 0)                                                     /* check result */
     {
-        handle->debug_print("shtc3: write command failed.\n");        /* write command failed */
+        DRIVER_SHTC3_DEBUG_PRINT("shtc3: write command failed.\n");   /* write command failed */
            
         return 1;                                                     /* return error */
     }
@@ -514,7 +525,7 @@ uint8_t shtc3_sleep(shtc3_handle_t *handle)
     res = a_shtc3_write(handle, command);                             /* write command */
     if (res != 0)                                                     /* check result */
     {
-        handle->debug_print("shtc3: write command failed.\n");        /* write command failed */
+        DRIVER_SHTC3_DEBUG_PRINT("shtc3: write command failed.\n");   /* write command failed */
            
         return 1;                                                     /* return error */
     }
@@ -550,7 +561,7 @@ uint8_t shtc3_wakeup(shtc3_handle_t *handle)
     res = a_shtc3_write(handle, command);                             /* write command */
     if (res != 0)                                                     /* check result */
     {
-        handle->debug_print("shtc3: write command failed.\n");        /* write command failed */
+        DRIVER_SHTC3_DEBUG_PRINT("shtc3: write command failed.\n");   /* write command failed */
            
         return 1;                                                     /* return error */
     }

@@ -76,7 +76,9 @@ typedef struct shtc3_handle_s
     uint8_t (*iic_read_address16)(uint8_t addr, uint16_t reg, uint8_t *buf, uint16_t len);         /**< point to an iic_read_address16 function address */
     void (*receive_callback)(uint16_t type);                                                       /**< point to a receive_callback function address */
     void (*delay_ms)(uint32_t ms);                                                                 /**< point to a delay_ms function address */
+#ifdef DRIVER_SHTC3_WITH_DEBUG_PRINT
     void (*debug_print)(const char *const fmt, ...);                                               /**< point to a debug_print function address */
+#endif
     uint8_t inited;                                                                                /**< inited flag */
 } shtc3_handle_t;
 
@@ -161,7 +163,11 @@ typedef struct shtc3_info_s
  * @param[in] FUC pointer to a debug_print function address
  * @note      none
  */
+#ifdef DRIVER_SHTC3_WITH_DEBUG_PRINT
 #define DRIVER_SHTC3_LINK_DEBUG_PRINT(HANDLE, FUC)           (HANDLE)->debug_print = FUC
+#else
+#define DRIVER_SHTC3_LINK_DEBUG_PRINT(HANDLE, FUC)           do {} while(0)
+#endif
 
 /**
  * @brief     link receive_callback function
