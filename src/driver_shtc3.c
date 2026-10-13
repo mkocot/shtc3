@@ -348,7 +348,11 @@ uint8_t shtc3_read(shtc3_handle_t *handle, shtc3_bool_t clock_stretching_enable,
         return 1;                                                                  /* return error */
     }
     *temperature_raw = (uint16_t)((((uint16_t)data[0]) << 8) | data[1]);           /* get raw temperature */
+#ifdef DRIVER_SHTC3_WITH_FLOAT_OUTPUT
     *temperature_s = (float)(*temperature_raw) / 65536.0f * 175.0f - 45.0f;        /* convert raw temperature */
+#else
+    (void)temperature_s;
+#endif
     
     if (clock_stretching_enable == SHTC3_BOOL_FALSE)                               /* if disable clock stretching */
     {
@@ -372,7 +376,11 @@ uint8_t shtc3_read(shtc3_handle_t *handle, shtc3_bool_t clock_stretching_enable,
         return 1;                                                                  /* return error */
     }
     *humidity_raw = (uint16_t)((((uint16_t)data[0]) << 8) | data[1]);              /* get raw humidity */
+#ifdef DRIVER_SHTC3_WITH_FLOAT_OUTPUT
     *humidity_s = (float)(*humidity_raw) / 65536.0f * 100.0f;                      /* convert raw humidity */
+#else
+    (void)humidity_s;
+#endif
     
     return 0;                                                                      /* success return 0 */
 }
@@ -431,7 +439,11 @@ uint8_t shtc3_read_low_power(shtc3_handle_t *handle, shtc3_bool_t clock_stretchi
         return 1;                                                                  /* return error */
     }
     *temperature_raw = (uint16_t)((((uint16_t)data[0]) << 8) | data[1]);           /* get raw temperature */
+#ifdef DRIVER_SHTC3_WITH_FLOAT_OUTPUT
     *temperature_s = (float)(*temperature_raw) / 65536.0f * 175.0f - 45.0f;        /* convert raw temperature */
+#else
+    (void)temperature_s;
+#endif
     
     if (clock_stretching_enable == SHTC3_BOOL_FALSE)                               /* if disable clock stretching */
     {
@@ -455,7 +467,11 @@ uint8_t shtc3_read_low_power(shtc3_handle_t *handle, shtc3_bool_t clock_stretchi
         return 1;                                                                  /* return error */
     }
     *humidity_raw = (uint16_t)((((uint16_t)data[0]) << 8) | data[1]);              /* get raw humidity */
+#ifdef DRIVER_SHTC3_WITH_FLOAT_OUTPUT
     *humidity_s = (float)(*humidity_raw) / 65536.0f * 100.0f;                      /* convert raw humidity */
+#else
+    (void)humidity_s;
+#endif
     
     return 0;                                                                      /* success return 0 */
 }
